@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ email: '', password: '' })
 
@@ -20,7 +18,8 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
-    startTransition(async () => {
+    setIsPending(true)
+    ;(async () => {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({
         email: form.email,
@@ -32,9 +31,11 @@ export default function LoginPage() {
         return
       }
 
-      router.push('/admin')
-      router.refresh()
-    })
+      // Hard redirect so the browser sends the new session cookies in the request
+      // (client-side router.push doesn't reliably forward newly-set cookies to the proxy)
+      window.location.href = '/admin'
+    })()
+    .finally(() => setIsPending(false))
   }
 
   return (
