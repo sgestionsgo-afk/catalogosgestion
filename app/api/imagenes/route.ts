@@ -1,14 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
-type GoogleImageItem = {
-  link: string
-  title: string
-  image?: { thumbnailLink?: string }
+const BASE_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept-Language': 'es-419,es;q=0.9,en;q=0.8',
+}
+
+type ImageResult = { url: string; thumbnail: string; title: string }
+
+async function searchDuckDuckGoImages(q: string): Promise<ImageResult[]> {
+  // Paso 1: cargar la página para obtener el token vqd y las cookies de sesión
+  const initUrl = `https://duckduckgo.com/?q=${encodeURIComponent(q)}&iax=images&ia=images`
+  const initRes = await fetch(initUrl, {
+    headers: { ...BASE_HEADERS, Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
+    redirect: 'follow',
+  })
+  const html = await initRes.text()
+
+  // Extraer el token vqd con varios patrones posibles
+  const vqd =
+    html.match(/vqd=["']([\d-]+)["']/)?.[1] ??
+    html.match(/vqd=([\d-]+)[&"'\s]/)?.[1] ??
+    html.match(/"vqd":"([\d-]+)"/)?.[1]
+
+  if (!vqd) {
+    throw new Error('No se pudo obtener el token de búsqueda de DDG')
+  }
+
+  // Reenviar cookies de sesión que DDG requiere
+  const setCookie = initRes.headers.get('set-cookie') ?? ''
+  const cookieStr = setCookie
+    .split(',')
+    .map((c) => c.split(';')[0].trim())
+    .filter(Boolean)
+    .join('; ')
+
+  // Paso 2: llamar al endpoint de imágenes con el token
+  const imgParams = new URLSearchParams({ q, vqd, o: 'json', p: '1', s: '0', u: 'bing', f: ',,,,,', l: 'es-419' })
+  const imgRes = await fetch(`https://duckduckgo.com/i.js?${imgParams}`, {
+    headers: {
+      ...BASE_HEADERS,
+      Accept: 'application/json, text/javascript, */*; q=0.01',
+      Referer: initUrl,
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(cookieStr ? { Cookie: cookieStr } : {}),
+    },
+  })
+
+  if (!imgRes.ok) {
+    throw new Error(`DuckDuckGo respondió con ${imgRes.status}`)
+  }
+
+  const data = await imgRes.json()
+  return ((data.results ?? []) as { image: string; thumbnail: string; title: string }[]).map((r) => ({
+    url: r.image,
+    thumbnail: r.thumbnail,
+    title: r.title,
+  }))
 }
 
 export async function GET(req: NextRequest) {
-  // Solo usuarios autenticados pueden usar esta ruta
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
@@ -20,44 +71,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Falta el parámetro q' }, { status: 400 })
   }
 
-  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY
-  const cx = process.env.GOOGLE_CUSTOM_SEARCH_ENGINE_ID
-
-  if (!apiKey || !cx) {
-    return NextResponse.json(
-      { error: 'Búsqueda de imágenes no configurada. Revisá GOOGLE_CUSTOM_SEARCH_API_KEY y GOOGLE_CUSTOM_SEARCH_ENGINE_ID en .env.local' },
-      { status: 503 }
-    )
-  }
-
-  const searchUrl =
-    `https://www.googleapis.com/customsearch/v1` +
-    `?key=${apiKey}` +
-    `&cx=${cx}` +
-    `&q=${encodeURIComponent(q)}` +
-    `&searchType=image` +
-    `&num=9` +
-    `&safe=active`
-
-  let res: Response
+  let results: ImageResult[]
   try {
-    res = await fetch(searchUrl)
-  } catch {
-    return NextResponse.json({ error: 'Error al conectar con el servicio de búsqueda' }, { status: 502 })
-  }
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    const message = body?.error?.message ?? 'Error en la búsqueda'
+    results = await searchDuckDuckGoImages(q)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Error al buscar imágenes'
+    console.error('[/api/imagenes] Error DDG:', message)
     return NextResponse.json({ error: message }, { status: 502 })
   }
 
-  const data = await res.json()
-  const items = ((data.items ?? []) as GoogleImageItem[]).map((item) => ({
-    url: item.link,
-    thumbnail: item.image?.thumbnailLink ?? item.link,
-    title: item.title,
-  }))
-
-  return NextResponse.json({ items })
+  return NextResponse.json({ items: results.slice(0, 12) })
 }
+

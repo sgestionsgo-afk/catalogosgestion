@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import type { ProductoInsert } from '@/lib/supabase/types'
 
 const MAX_ROWS = 500
