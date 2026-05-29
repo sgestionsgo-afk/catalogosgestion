@@ -70,7 +70,7 @@ export default function ProductCard({ producto }: Props) {
           </div>
         )}
         
-        {stock > 0 && stock < 5 && (
+        {(stock ?? 0) > 0 && (stock ?? 0) < 5 && (
           <div className="absolute top-3 right-3 bg-orange-500/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-bold text-white shadow-lg">
             {stock} disponible{stock !== 1 ? 's' : ''}
           </div>
