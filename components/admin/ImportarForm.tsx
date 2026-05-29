@@ -28,16 +28,20 @@ function validateRow(raw: Record<string, string>, index: number): ValidatedRow {
   if (!precioRaw) return { raw, rowIndex: index, error: 'Falta precio' }
 
   const precio = parseFloat(precioRaw)
-  if (isNaN(precio) || precio <= 0) return { raw, rowIndex: index, error: 'Precio inválido' }
+  if (isNaN(precio) || precio < 0) return { raw, rowIndex: index, error: 'Precio inválido' }
 
   const stockRaw = raw.stock?.trim()
-  const stock = stockRaw ? parseInt(stockRaw, 10) : null
-  const destacado = raw.destacado?.toLowerCase() === 'true' || raw.destacado?.trim() === '1'
-  const activoRaw = raw.activo?.trim()
-  const activo =
-    !activoRaw || activoRaw === ''
-      ? true
-      : activoRaw.toLowerCase() !== 'false' && activoRaw !== '0'
+  const stockNum = stockRaw ? parseInt(stockRaw, 10) : null
+  // Si el valor de stock es texto (ej: 'Si'/'No'), tratarlo como null (sin límite)
+  const stock = stockNum !== null && !isNaN(stockNum) ? stockNum : null
+
+  const boolVal = (v?: string, def = true) => {
+    const s = v?.trim().toLowerCase() ?? ''
+    if (!s) return def
+    return s === 'si' || s === 'sí' || s === 'true' || s === '1' || s === 'yes'
+  }
+  const destacado = boolVal(raw.destacado, false)
+  const activo = boolVal(raw.activo, true)
 
   return {
     raw,

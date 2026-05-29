@@ -1,0 +1,15 @@
+﻿nombre;precio;categoria;descripcion;stock;imagen_url;destacado;activo
+Combo Punto de Venta;600000;Combo;Pc Ryzen 3 Monitor teclado Impresora 80mm Lector de codigos Sistema de gestion Windows instalado;Si;https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80;Si;Si
+Notebook CX 14.1;0;Notebook;Intel Pentium N5030 8GB RAM SSD 480GB Windows 11 Home;Si;https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80;No;Si
+Notebook Lenovo 15.6 Ideapad S3;0;Notebook;AMD Ryzen 3 7320U 8GB RAM SSD 256GB Windows 11 Home;Si;https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=600&q=80;No;Si
+Mini PC CX Performance;0;Mini PC;AMD Ryzen 3 3200U 8GB RAM SSD 240GB;Si;https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=600&q=80;No;Si
+Mini PC CX;0;Mini PC;Intel i5 1240P 16GB RAM SSD 480GB;Si;https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=600&q=80;No;Si
+Impresora Termica Ocom 80mm;0;Perifericos;USB RS232 LAN Impresion rapida de tickets;Si;https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?auto=format&fit=crop&w=600&q=80;No;Si
+Teclado y Mouse Logitech MK220;0;Perifericos;Combo inalambrico compacto para hogar u oficina;Si;https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=600&q=80;No;Si
+Cajon Monedero Ocom ECD 415;0;Perifericos;Cajon metalico resistente para organizar efectivo;Si;https://images.unsplash.com/photo-1556742208-999815fca738?auto=format&fit=crop&w=600&q=80;No;Si
+Contador de Billetes Performance;0;Perifericos;Conteo rapido y preciso con deteccion de billetes falsos;Si;https://images.unsplash.com/photo-1580519542036-c47de6196ba5?auto=format&fit=crop&w=600&q=80;No;Si
+PC Gamer;0;PC Gamer;Ryzen 5 16GB RAM SSD 1TB Potencia para gaming avanzado;Si;https://images.unsplash.com/photo-1616763355603-9755a640a287?auto=format&fit=crop&w=600&q=80;Si;Si
+Monitor 19 Performance PF185F;0;Monitores;VGA HDMI Monitor compacto para oficina o comercio;Si;https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=600&q=80;No;Si
+Monitor 25 Arkham Gamer;0;Monitores;200Hz IPS Full HD 1ms Panel IPS alta fluidez;Si;https://images.unsplash.com/photo-1585792180666-f7347c490ee2?auto=format&fit=crop&w=600&q=80;Si;Si
+Sistema StockFacil;0;Software;Gestion de stock ventas caja cuentas corrientes y reportes;Si;https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80;Si;Si
+Sistema StarPos;0;Software;Facturacion electronica pagos QR integrados y gestion multi sucursal;Si;https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=600&q=80;Si;Si

@@ -16,13 +16,16 @@ export function parseCSV(text: string): ParsedCSV {
   const lines = text.trim().split(/\r?\n/)
   if (lines.length < 2) return { headers: [], rows: [] }
 
-  const headers = splitCSVLine(lines[0]).map((h) => h.trim().toLowerCase())
+  // Auto-detect delimiter: semicolon or comma
+  const delimiter = (lines[0].match(/;/g) ?? []).length >= (lines[0].match(/,/g) ?? []).length ? ';' : ','
+
+  const headers = splitCSVLine(lines[0], delimiter).map((h) => h.trim().toLowerCase())
 
   const rows = lines
     .slice(1)
     .filter((l) => l.trim())
     .map((line) => {
-      const values = splitCSVLine(line)
+      const values = splitCSVLine(line, delimiter)
       const row: Record<string, string> = {}
       headers.forEach((h, i) => {
         row[h] = values[i]?.trim() ?? ''
@@ -37,7 +40,7 @@ export function parseCSV(text: string): ParsedCSV {
  * Divide una línea CSV en valores, respetando campos entre comillas.
  * Soporta: comillas dobles escapadas ("") dentro de campos.
  */
-function splitCSVLine(line: string): string[] {
+function splitCSVLine(line: string, delimiter = ','): string[] {
   const result: string[] = []
   let current = ''
   let inQuotes = false
@@ -51,7 +54,7 @@ function splitCSVLine(line: string): string[] {
       } else {
         inQuotes = !inQuotes
       }
-    } else if (ch === ',' && !inQuotes) {
+    } else if (ch === delimiter && !inQuotes) {
       result.push(current)
       current = ''
     } else {
